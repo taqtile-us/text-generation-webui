@@ -1,0 +1,25 @@
+{
+  "name": "text-generation-webui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taqtile-us/text-generation-webui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/taqtile-us/text-generation-webui/issues"
+  },
+  "homepage": "https://github.com/taqtile-us/text-generation-webui#readme",
+  "dependencies": {
+    "@xenova/transformers": "^2.6.2",
+    "chromadb": "^1.5.11",
+    "langchain": "^0.0.157",
+    "typescript": "^5.2.2"
+  }
+}
