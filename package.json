@@ -20,6 +20,7 @@
     "@xenova/transformers": "^2.6.2",
     "chromadb": "^1.5.11",
     "langchain": "^0.0.157",
+    "pdf-parse": "^1.1.1",
     "typescript": "^5.2.2"
   }
 }
