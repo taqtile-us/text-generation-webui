@@ -1,8 +1,10 @@
 import {PromptTemplate} from "langchain/prompts";
 import {Ollama} from "langchain/llms/ollama";
-import { LLMChain } from "langchain/chains";
+import {RetrievalQAChain} from "langchain/chains";
 import {PDFLoader} from 'langchain/document_loaders/fs/pdf';
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
+import {MemoryVectorStore} from "langchain/vectorstores/memory";
+import {HuggingFaceTransformersEmbeddings} from "langchain/embeddings/hf_transformers";
 
 const loader = new PDFLoader('./documents/WMF1000manual.pdf');
 const textSplitter = new RecursiveCharacterTextSplitter({
@@ -11,7 +13,10 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 })
 const documents = await loader.load();
 const splittedDocs = await textSplitter.splitDocuments(documents)
-console.log(splittedDocs);
+const embeddingModel = new HuggingFaceTransformersEmbeddings({
+    modelName: 'Xenova/all-MiniLM-L6-V2'
+});
+const vectorStore = await MemoryVectorStore.fromDocuments(splittedDocs, embeddingModel)
 
 const template = `use this peace of text: {context}, and answer this question: {question}`;
 
@@ -25,23 +30,10 @@ const model = new Ollama({
     model: "llama2:13b",
 });
 
-const chain = new LLMChain({
-    llm: model,
-    prompt: promptTemplate,
-});
+const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {prompt: promptTemplate});
 
 const result = await chain.call({
-    context: `The hot water boiler and the steam boiler are equipped with
-    three-level protection from overheating and bursting.
-     The first level is the temperature sensor. It switches the
-    heater on and off based on the water temperature.
-     The second level is the safety thermostat. If the surface
-    temperature of a hot water boiler / steam boilerexceeds
-    155°C, the safety thermostat interrupts the heating cir-
-    cuit.
-     The third safety level is the safety valve. It releases the
-    overpressure that is built up.`,
-    question: 'how many protection levels has this boiler?'
+    query: 'what model of coffee machine is this instruction made for?'
 })
 
 console.log(result)
