@@ -5,7 +5,7 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { HuggingFaceTransformersEmbeddings } from "langchain/embeddings/hf_transformers";
-const loader = new PDFLoader('./documents/WMF1000manual.pdf');
+const loader = new PDFLoader('./documents/air-condition-manual.pdf');
 const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 500,
     chunkOverlap: 0
@@ -27,6 +27,6 @@ const model = new Ollama({
 });
 const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), { prompt: promptTemplate });
 const result = await chain.call({
-    query: 'what model of coffee machine is this instruction made for?'
+    query: 'what is this instruction about'
 });
 console.log(result);
