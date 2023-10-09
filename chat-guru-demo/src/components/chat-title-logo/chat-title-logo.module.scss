@@ -1,0 +1,6 @@
+@import "src/shared/mixins";
+
+.componentWrapper {
+  @include flexCenter;
+  flex-direction: column;
+}
