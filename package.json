@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "",
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taqtile-us/text-generation-webui.git"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

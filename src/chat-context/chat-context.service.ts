@@ -26,14 +26,12 @@ export class ChatContextService {
     });
     const documents = await loader.load();
     const splittedDocs = await textSplitter.splitDocuments(documents);
+
     const embeddingModel = new OllamaEmbeddings({
       baseUrl: 'http://localhost:11434',
       model: 'llama2:13b',
     });
 
-    console.log(JSON.stringify(MemoryVectorStore));
-
-    //VVV error here
     const vectorStore = await MemoryVectorStore.fromDocuments(
       splittedDocs,
       embeddingModel,
@@ -58,9 +56,8 @@ export class ChatContextService {
   }
 
   async askAssistant(prompt: string) {
-    const result = await this.chain.call({
+    return await this.chain.call({
       query: prompt,
     });
-    return result;
   }
 }

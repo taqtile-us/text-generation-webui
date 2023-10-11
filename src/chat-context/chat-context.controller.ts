@@ -17,6 +17,6 @@ export class ChatContextController {
 
   @Get('ask:prompt')
   askAssistant(@Param('prompt') prompt: string) {
-    return this.chatContextService.usePdfDoc(prompt);
+    return this.chatContextService.askAssistant(prompt);
   }
 }
