@@ -27,7 +27,7 @@ class ChatStore {
         this.isRequestAble = value;
     }
 
-    @action setChatContextType(value: string) {
+    @action setChatContextFileName(value: string) {
         this.chatContextFileName = value;
         apiChooseFileForContext(value);
     }
