@@ -20,8 +20,16 @@ const UploadContextModal: FC<Props> = observer(({onClose}) => {
                         <input className={styles.fileInput} type={'file'}/>
                     </>
                 ) : chatContextType === 'video' ? (
-                    <h3>Insert YouTube Link</h3>
-                ) : <h3>Insert WebSite Link</h3>
+                    <>
+                        <h3>Insert YouTube Link</h3>
+                        <input style={{width: '75%'}} className={styles.fileInput} type={'url'}/>
+                    </>
+                ) : (
+                    <>
+                        <h3>Insert WebSite Link</h3>
+                        <input style={{width: '75%'}} className={styles.fileInput} type={'url'}/>
+                    </>
+                )
                 }
             </div>
         </div>
