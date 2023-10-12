@@ -5,7 +5,7 @@ import { ChatContextService } from './chat-context.service';
 export class ChatContextController {
   constructor(private readonly chatContextService: ChatContextService) {}
 
-  @Get('get-pdfs/list')
+  @Get('get-projects-tree')
   getPdfsList() {
     return this.chatContextService.getPdfsList();
   }

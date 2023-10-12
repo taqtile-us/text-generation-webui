@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { join } from 'path';
-import { readdirSync } from 'fs';
 import { PromptTemplate } from 'langchain/prompts';
 import { Ollama } from 'langchain/llms/ollama';
 import { RetrievalQAChain } from 'langchain/chains';
@@ -8,50 +6,77 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OllamaEmbeddings } from 'langchain/embeddings/ollama';
+import { CheerioWebBaseLoader } from 'langchain/document_loaders/web/cheerio';
+import * as dirTree from 'directory-tree';
 
 @Injectable()
 export class ChatContextService {
   chain;
+  template = `answer the question: {question}. Base your answer on this data: {context}`;
+  textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    chunkOverlap: 0,
+  });
+  model = new Ollama({
+    baseUrl: 'http://localhost:11434',
+    model: 'llama2:13b',
+  });
+  embeddingModel = new OllamaEmbeddings({
+    baseUrl: 'http://localhost:11434',
+    model: 'llama2:13b',
+  });
+  vectorStore = MemoryVectorStore.fromDocuments(null, this.embeddingModel);
 
   getPdfsList() {
-    const filesPath = join(__dirname, '../../src/uploads/pdfs');
-    return readdirSync(filesPath);
+    // const filesPath = join(__dirname, '../../src/uploads');
+    // return readdirSync(filesPath);
+    const tree = dirTree('./src/uploads/projects');
+    console.log(tree);
+    return tree;
+  }
+
+  async useHTMLPage(link: string) {
+    const loader = new CheerioWebBaseLoader(link);
+    const documents = await loader.load();
+    const splittedDocs = await this.textSplitter.splitDocuments(documents);
+    await (await this.vectorStore).addDocuments(splittedDocs);
+    const template = this.template;
+
+    const promptTemplate = new PromptTemplate({
+      template,
+      inputVariables: ['context', 'question'],
+    });
+    this.chain = RetrievalQAChain.fromLLM(
+      this.model,
+      (await this.vectorStore).asRetriever(),
+      {
+        prompt: promptTemplate,
+      },
+    );
   }
 
   async usePdfDoc(name: string) {
     const loader = new PDFLoader(`src/uploads/pdfs/${name}`);
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 500,
-      chunkOverlap: 0,
-    });
+
     const documents = await loader.load();
-    const splittedDocs = await textSplitter.splitDocuments(documents);
+    const splittedDocs = await this.textSplitter.splitDocuments(documents);
 
-    const embeddingModel = new OllamaEmbeddings({
-      baseUrl: 'http://localhost:11434',
-      model: 'llama2:13b',
-    });
+    await (await this.vectorStore).addDocuments(splittedDocs);
 
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      splittedDocs,
-      embeddingModel,
-    );
-
-    const template = `use this peace of text: {context}, and answer this question: {question}`;
+    const template = this.template;
 
     const promptTemplate = new PromptTemplate({
       template,
       inputVariables: ['context', 'question'],
     });
 
-    const model = new Ollama({
-      baseUrl: 'http://localhost:11434',
-      model: 'llama2:13b',
-    });
-
-    this.chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {
-      prompt: promptTemplate,
-    });
+    this.chain = RetrievalQAChain.fromLLM(
+      this.model,
+      (await this.vectorStore).asRetriever(),
+      {
+        prompt: promptTemplate,
+      },
+    );
     console.log('chain created');
   }
 
