@@ -3,6 +3,7 @@ import {chatStore} from "../../stores/chat-store";
 import {observer} from "mobx-react-lite";
 import styles from './chat.module.scss'
 import UploadContextModal from "./upload-context-modal/upload-context-modal";
+import {apiAskAssistant} from "../../api/chat-api";
 
 const Chat = observer(() => {
     const {
@@ -15,14 +16,15 @@ const Chat = observer(() => {
     const [showContextModal, setShowContextModal] = useState(false)
     const chatInputRef = useRef<HTMLDivElement>()
 
-    const onSendMessageHandler = () => {
+    const onSendMessageHandler = async () => {
         if(!prompt) return
         addMessage({
             id: Date.now() as number,
             author: 'user',
             message: prompt
         });
-        setPrompt('')
+        await apiAskAssistant(prompt);
+        await setPrompt('')
     }
 
     useEffect(() => {

@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import Chat from "./components/chat/chat";
-import ContextTypeSelect from "./components/context-type-select/context-type-select";
 import ChatTitleLogo from "./components/chat-title-logo/chat-title-logo";
 import {chatStore} from "./stores/chat-store";
+import BurgerMenu from "./components/burger-menu/burger-menu";
 
 function App() {
     const {getListOfFiles} = chatStore
@@ -26,7 +26,7 @@ function App() {
             position: 'relative',
             fontFamily: 'Helvetica',
         }}>
-            <ContextTypeSelect/>
+            <BurgerMenu/>
             <ChatTitleLogo/>
             {isLoaded
                 ? (
