@@ -19,4 +19,9 @@ export class ChatContextController {
   askAssistant(@Param('prompt') prompt: string) {
     return this.chatContextService.askAssistant(prompt);
   }
+
+  @Get('crawl:link')
+  useHTMLPage(@Param('link') link: string) {
+    return this.chatContextService.useHTMLPage(`http://${link}`);
+  }
 }

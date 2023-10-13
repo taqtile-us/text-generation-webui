@@ -6,26 +6,29 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OllamaEmbeddings } from 'langchain/embeddings/ollama';
-import { CheerioWebBaseLoader } from 'langchain/document_loaders/web/cheerio';
 import * as dirTree from 'directory-tree';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
+import { RecursiveUrlLoader } from 'langchain/document_loaders/web/recursive_url';
 
 @Injectable()
 export class ChatContextService {
   chain;
-  template = `answer the question: {question}. Base your answer on this data: {context}`;
+  promptTemplate = new PromptTemplate({
+    template: `answer the question: {question}. Base your answer on this data: {context}`,
+    inputVariables: ['context', 'question'],
+  });
   textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 500,
     chunkOverlap: 0,
   });
   model = new Ollama({
     baseUrl: 'http://localhost:11434',
-    model: 'llama2:13b',
+    model: 'llama2:7b',
   });
   embeddingModel = new OllamaEmbeddings({
     baseUrl: 'http://localhost:11434',
-    model: 'llama2:13b',
+    model: 'llama2:7b',
   });
-  vectorStore = MemoryVectorStore.fromDocuments(null, this.embeddingModel);
 
   getPdfsList() {
     // const filesPath = join(__dirname, '../../src/uploads');
@@ -36,45 +39,63 @@ export class ChatContextService {
   }
 
   async useHTMLPage(link: string) {
-    const loader = new CheerioWebBaseLoader(link);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const compile = require('html-to-text');
+
+    const compiledConvert = compile({ wordwrap: 130 }); // returns (text: string) => string;
+
+    const loader = new RecursiveUrlLoader(link, {
+      extractor: compiledConvert,
+      maxDepth: 5,
+    });
+
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-    await (await this.vectorStore).addDocuments(splittedDocs);
-    const template = this.template;
-
-    const promptTemplate = new PromptTemplate({
-      template,
-      inputVariables: ['context', 'question'],
-    });
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+      splittedDocs,
+      this.embeddingModel,
+    );
     this.chain = RetrievalQAChain.fromLLM(
       this.model,
-      (await this.vectorStore).asRetriever(),
+      vectorStore.asRetriever(),
       {
-        prompt: promptTemplate,
+        prompt: this.promptTemplate,
+      },
+    );
+  }
+
+  async useTXTfile(filename: string) {
+    const loader = new TextLoader(`src/uploads/projects/${filename}`);
+    const documents = await loader.load();
+    const splittedDocs = await this.textSplitter.splitDocuments(documents);
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+      splittedDocs,
+      this.embeddingModel,
+    );
+    this.chain = RetrievalQAChain.fromLLM(
+      this.model,
+      vectorStore.asRetriever(),
+      {
+        prompt: this.promptTemplate,
       },
     );
   }
 
   async usePdfDoc(name: string) {
-    const loader = new PDFLoader(`src/uploads/pdfs/${name}`);
+    const loader = new PDFLoader(`src/uploads/projects/${name}`);
 
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-
-    await (await this.vectorStore).addDocuments(splittedDocs);
-
-    const template = this.template;
-
-    const promptTemplate = new PromptTemplate({
-      template,
-      inputVariables: ['context', 'question'],
-    });
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+      splittedDocs,
+      this.embeddingModel,
+    );
 
     this.chain = RetrievalQAChain.fromLLM(
       this.model,
-      (await this.vectorStore).asRetriever(),
+      vectorStore.asRetriever(),
       {
-        prompt: promptTemplate,
+        prompt: this.promptTemplate,
       },
     );
     console.log('chain created');
