@@ -4,7 +4,7 @@ import { Ollama } from 'langchain/llms/ollama';
 import { RetrievalQAChain } from 'langchain/chains';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { Chroma } from 'langchain/vectorstores/chroma';
 import { OllamaEmbeddings } from 'langchain/embeddings/ollama';
 import * as dirTree from 'directory-tree';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
@@ -30,6 +30,10 @@ export class ChatContextService {
     model: 'llama2:7b',
   });
 
+  vectorStore = new Chroma(this.embeddingModel, {
+    collectionName: 'test',
+  });
+
   getPdfsList() {
     // const filesPath = join(__dirname, '../../src/uploads');
     // return readdirSync(filesPath);
@@ -51,13 +55,10 @@ export class ChatContextService {
 
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      splittedDocs,
-      this.embeddingModel,
-    );
+    await this.vectorStore.addDocuments(splittedDocs);
     this.chain = RetrievalQAChain.fromLLM(
       this.model,
-      vectorStore.asRetriever(),
+      this.vectorStore.asRetriever(),
       {
         prompt: this.promptTemplate,
       },
@@ -68,13 +69,10 @@ export class ChatContextService {
     const loader = new TextLoader(`src/uploads/projects/${filename}`);
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      splittedDocs,
-      this.embeddingModel,
-    );
+    await this.vectorStore.addDocuments(splittedDocs);
     this.chain = RetrievalQAChain.fromLLM(
       this.model,
-      vectorStore.asRetriever(),
+      this.vectorStore.asRetriever(),
       {
         prompt: this.promptTemplate,
       },
@@ -86,14 +84,11 @@ export class ChatContextService {
 
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      splittedDocs,
-      this.embeddingModel,
-    );
+    await this.vectorStore.addDocuments(splittedDocs);
 
     this.chain = RetrievalQAChain.fromLLM(
       this.model,
-      vectorStore.asRetriever(),
+      this.vectorStore.asRetriever(),
       {
         prompt: this.promptTemplate,
       },
