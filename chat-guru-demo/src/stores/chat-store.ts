@@ -1,5 +1,5 @@
 import {action, makeAutoObservable, observable} from "mobx"
-import {ChatMessage} from "../shared/types";
+import {ChatMessage, DirectoryTree} from "../shared/types";
 import autoBind from 'auto-bind'
 import {apiAskAssistant, apiChooseFileForContext, apiGetListOfContextFiles} from "../api/chat-api";
 
@@ -17,7 +17,7 @@ class ChatStore {
     }];
     @observable isRequestAble: boolean = true;
     @observable chatContextFileName: string = 'None';
-    @observable listOfFiles: string[] =[];
+    @observable projectsTree: DirectoryTree = {} as DirectoryTree;
 
     @action addMessage(message: ChatMessage) {
         this.messages = [...this.messages, message]
@@ -43,7 +43,7 @@ class ChatStore {
 
     @action async getListOfFiles() {
         apiGetListOfContextFiles()
-            .then(res => this.listOfFiles = res as string[]);
+            .then(res => this.projectsTree = res as DirectoryTree);
     }
 }
 
