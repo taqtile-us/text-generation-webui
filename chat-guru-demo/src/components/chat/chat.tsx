@@ -8,7 +8,8 @@ const Chat = observer(() => {
     const {
         messages,
         isRequestAble,
-        addMessage
+        addMessage,
+        askAssistant
     } = chatStore;
 
     const [prompt, setPrompt] = useState('');
@@ -22,7 +23,7 @@ const Chat = observer(() => {
             author: 'user',
             message: prompt
         });
-        setPrompt('')
+        askAssistant(prompt)
     }
 
     useEffect(() => {

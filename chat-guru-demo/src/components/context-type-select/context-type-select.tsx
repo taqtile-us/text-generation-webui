@@ -1,8 +1,9 @@
 import React from 'react';
 import styles from './context-type-select.module.scss'
 import {chatStore} from "../../stores/chat-store";
+import { observer } from 'mobx-react-lite';
 
-const ContextTypeSelect = () => {
+const ContextTypeSelect = observer(() => {
     const {listOfFiles, setChatContextFileName} = chatStore;
 
     const onSelect = (value: 'pdf' | 'video' | 'website') => {
@@ -19,6 +20,6 @@ const ContextTypeSelect = () => {
             </select>
         </div>
     );
-};
+});
 
 export default ContextTypeSelect;
