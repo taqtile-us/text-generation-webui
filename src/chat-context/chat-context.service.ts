@@ -17,7 +17,7 @@ export class ChatContextService {
   chain;
   vectorStore;
   promptTemplate = new PromptTemplate({
-    template: `answer the question: {question}. Base your answer on this data: {context}`,
+    template: `Always remember this info: {context}, when you answer the question: {question}`,
     inputVariables: ['context', 'question'],
   });
   embeddingModel = new OllamaEmbeddings({
@@ -43,7 +43,7 @@ export class ChatContextService {
     const compiledConvert = compile({ wordwrap: 130 })
     const loader = new RecursiveUrlLoader(link, {
       extractor: compiledConvert,
-      maxDepth: 1,
+      maxDepth: 5,
     });
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
@@ -102,6 +102,7 @@ export class ChatContextService {
   }
 
   async askAssistant(prompt: string) {
+    console.log(this.vectorStore.memoryVectors)
     return await this.chain.call({
       query: prompt,
     });
