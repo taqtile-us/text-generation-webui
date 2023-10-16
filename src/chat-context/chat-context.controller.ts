@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { ChatContextService } from './chat-context.service';
+import { link } from 'fs';
 
 @Controller('test')
 export class ChatContextController {
@@ -12,7 +13,7 @@ export class ChatContextController {
 
   @Get('create-chain/file:name')
   usePdfDoc(@Param('name') name: string) {
-    return this.chatContextService.usePdfDoc(name);
+    return this.chatContextService.usePdfDoc();
   }
 
   @Get('ask:prompt')
@@ -20,8 +21,8 @@ export class ChatContextController {
     return this.chatContextService.askAssistant(prompt);
   }
 
-  @Get('crawl:link')
-  useHTMLPage(@Param('link') link: string) {
-    return this.chatContextService.useHTMLPage(`http://${link}`);
+  @Get('crawl?')
+  useHTMLPage(@Query() query: {link: string}) {
+    return this.chatContextService.useHTMLPage(query.link);
   }
 }
