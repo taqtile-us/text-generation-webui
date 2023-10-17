@@ -1,16 +1,16 @@
-import React, {LegacyRef, useEffect, useRef, useState} from 'react';
+import {LegacyRef, useEffect, useRef, useState} from 'react';
 import {chatStore} from "../../stores/chat-store";
 import {observer} from "mobx-react-lite";
 import styles from './chat.module.scss'
 import UploadContextModal from "./upload-context-modal/upload-context-modal";
-import {apiAskAssistant} from "../../api/chat-api";
+
 
 const Chat = observer(() => {
     const {
         messages,
-        isRequestAble,
         addMessage,
-        askAssistant
+        askAssistant,
+        getListOfFiles
     } = chatStore;
 
     const [prompt, setPrompt] = useState('');
@@ -24,8 +24,15 @@ const Chat = observer(() => {
             author: 'user',
             message: prompt
         });
-        await apiAskAssistant(prompt);
-        await setPrompt('')
+        await askAssistant(prompt);
+        setPrompt('')
+    }
+
+
+    const addWebsetiPressHandler = () => {
+        // if(!link) return;
+        // apiAddContextLink(link)
+        getListOfFiles()
     }
 
     useEffect(() => {
@@ -45,11 +52,12 @@ const Chat = observer(() => {
             </div>
             <div ref={chatInputRef as LegacyRef<HTMLDivElement> | undefined} style={{display: 'flex', columnGap: '12px', width: '50%'}}>
                 <input onKeyPress={e => e.key === 'Enter' && onSendMessageHandler()} onSubmit={onSendMessageHandler} className={styles.chatInput} type={'text'} value={prompt} onChange={e => setPrompt(e.currentTarget.value)}/>
-                <button disabled={!isRequestAble} className={styles.addContextButton} onClick={() => setShowContextModal(true)}>📎</button>
-                <button disabled={!isRequestAble} className={styles.askButton} onClick={onSendMessageHandler}>
-                    {!isRequestAble ? '...' : 'Ask'}
+                <button className={styles.addContextButton} onClick={() => setShowContextModal(true)}>📎</button>
+                <button className={styles.askButton} onClick={onSendMessageHandler}>
+                    {'Ask'}
                 </button>
             </div>
+            <button style={{width: 'auto'}} className={styles.askButton} onClick={addWebsetiPressHandler}>Init config File</button>
         </div>
     );
 });

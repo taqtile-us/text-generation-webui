@@ -8,30 +8,9 @@ type Props = {
 }
 
 const UploadContextModal: FC<Props> = observer(({onClose}) => {
-    const {chatContextFileName} = chatStore;
-    const [file, setFile] = useState();
-
     return (
         <div onClick={onClose} className={styles.backdrop}>
-            <div onClick={e => e.stopPropagation()} className={styles.fileInputWrapper}>
-                {chatContextFileName === 'pdf' ? (
-                    <>
-                        <h3>Choose PDF file</h3>
-                        <input className={styles.fileInput} type={'file'}/>
-                    </>
-                ) : chatContextFileName === 'video' ? (
-                    <>
-                        <h3>Insert YouTube Link</h3>
-                        <input style={{width: '75%'}} className={styles.fileInput} type={'url'}/>
-                    </>
-                ) : (
-                    <>
-                        <h3>Insert WebSite Link</h3>
-                        <input style={{width: '75%'}} className={styles.fileInput} type={'url'}/>
-                    </>
-                )
-                }
-            </div>
+        
         </div>
     );
 });
