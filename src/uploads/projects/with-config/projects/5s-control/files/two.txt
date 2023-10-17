@@ -1,0 +1,44 @@
+5S Control suite (ПАКЕТ РЕШЕНИЙ) helps to solve your manufacturing problems.
+
+
+Operation Control 
+
+There are cases when workers do not notice their mistakes and a defective product is sent to the customer. This, of course, leads to a waste of material and time to eliminate the defect. 
+
+With our Operation Control solution you decrease the possibility of delivering defective items. 
+
+Operation Control monitors manufacturing processes in real time and warns in case of detecting defective products to fix on the spot. 
+
+
+Safety Control 
+
+Are your employees constantly violating safety protocols?
+
+Safety Control analyzes video from the production floor. Now when a worker walks up to a machine, our software helps you recognize whether the person is wearing personal protective equipment or not. If not, you are alerted!
+
+
+Tool Control 
+
+An employee used a tool but forgot to return it? No more searching for lost inventory!
+
+Tool Control captures a photo of a person as they take an item. The image is saved in reports. There you can always check who took a particular tool and contact this person directly.
+
+Staff Control 
+Staff Control locates employees and collects analytics about their movements. Management does not need to search for an employee all over the production site.
+ 
+Idle Control 
+
+Idle Control helps to keep track of the amount of time a worker is inactive. And even more! 
+
+Check how much time staff are scrolling through their smartphone (for example) and supervisors can use this data to increase productivity. The logic is simple: an employee is absent or distracted - the work is not done. Idle Control allows you to detect and record the fact of downtime. It allows you to clearly identify in which area of the production chain there was a delay and for what reason (whose fault). 
+
+
+ВАЖНЫЕ ВЕЩИ - СПРОСЯТ, НО ЕСЛИ НЕТ, ТО СТОИТ УПОМЯНУТЬ:
+
+5S is mainly a server software with WEB-interface access. This system is more secure and does not require updates. Control functions can be integrated into the industrial internet of things architecture and provide a more successful and secure operation of your enterprise.
+
+Computer Vision? 
+
+Have you ever heard about computer vision? This technology enables a computer literally to see and analyze objects. We upload thousands of images of the item to the computer. When the camera captures video and the algorithm detects deviations from the standard, the image taken is compared to the one uploaded. Are they different? Then 5S Solution creates a report and alerts you. And all the bottlenecks become visible and easy to eliminate. 
+
+
