@@ -4,14 +4,17 @@ import { Ollama } from 'langchain/llms/ollama';
 import { ConversationalRetrievalQAChain, RetrievalQAChain } from 'langchain/chains';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Chroma } from 'langchain/vectorstores/chroma';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OllamaEmbeddings } from 'langchain/embeddings/ollama';
-import * as dirTree from 'directory-tree';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveUrlLoader } from "langchain/document_loaders/web/recursive_url";
 import { compile } from "html-to-text";
-import { fiveSControlConfig } from 'uploads/projects/with-config/config';
+import { commonConfig, fiveSControlConfig } from 'uploads/projects/with-config/config';
+import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
+import { CSVLoader } from "langchain/document_loaders/fs/csv";
+import { DocxLoader } from "langchain/document_loaders/fs/docx";
+import { YoutubeLoader } from "langchain/document_loaders/web/youtube";
+import { GithubRepoLoader } from "langchain/document_loaders/web/github";
 
 @Injectable()
 export class ChatContextService {
@@ -50,38 +53,88 @@ export class ChatContextService {
     }
   }
 
-  async useHTMLPage(link: string) {
+  async useCommonConfigFile(projectName: string) {
+    const projectConfig = commonConfig.find((proj) => proj.projectName === projectName);
+    await this.useMultiLoader(projectConfig.extraInfoForChatPath);
+    for (const site in projectConfig.websitesLinks) {
+      await this.useCustomHTMLPage(projectConfig.websitesLinks[site].link, projectConfig.websitesLinks[site].crawlDepth)
+    }
+    // for (const index in projectConfig.youtubeVideoLinks) {
+    //   await this.useYoutubeVideo(projectConfig.youtubeVideoLinks[index])
+    // }
+    // for (const index in projectConfig.gitHubRepositories) {
+    //   await this.useGitHubProject(projectConfig.gitHubRepositories[index].link, projectConfig.gitHubRepositories[index].branch)
+    // }
+  }
+
+  private async useGitHubProject(projectUrl, branchName) {
+    const loader = new GithubRepoLoader(
+      projectUrl,
+      {
+        branch: branchName,
+        recursive: false,
+        unknown: "warn",
+        maxConcurrency: 5, // Defaults to 2
+      }
+    );
+    await this.proccessDocuments(loader);
+  }
+
+  private async useYoutubeVideo (url: string) {
+    const loader = YoutubeLoader.createFromUrl(url, {
+      language: "en",
+      addVideoInfo: true,
+    });
+   await this.proccessDocuments(loader);
+  }
+
+  private async useMultiLoader(folderPath: string) {
+    const loader = new DirectoryLoader(
+      folderPath,
+      {
+        ".pdf": (path) => new PDFLoader(path),
+        ".txt": (path) => new TextLoader(path), 
+      }
+    );
+   await this.proccessDocuments(loader);
+  }
+
+  private async useHTMLPage(link: string) {
     const compiledConvert = compile({ wordwrap: 130 })
     const loader = new RecursiveUrlLoader(link, {
       extractor: compiledConvert,
       maxDepth: 5,
     });
+    this.proccessDocuments(loader);
+  }
+
+  private async useCustomHTMLPage(link: string, depth: number) {
+    const compiledConvert = compile({ wordwrap: 130 })
+    const loader = new RecursiveUrlLoader(link, {
+      extractor: compiledConvert,
+      maxDepth: depth,
+    });
+    await this.proccessDocuments(loader);
+  }
+
+  private async useTXTfile(filepath: string) {
+    const loader = new TextLoader(filepath);
+    await this.proccessDocuments(loader);
+  }
+
+  private async usePdfDoc(filepath: string) {
+    const loader = new PDFLoader(filepath);
+    await this.proccessDocuments(loader)
+  }
+
+  private async proccessDocuments(loader: PDFLoader | TextLoader | RecursiveUrlLoader | DirectoryLoader | YoutubeLoader | GithubRepoLoader) {
     const documents = await loader.load();
     const splittedDocs = await this.textSplitter.splitDocuments(documents);
-    console.log(`vector store is already created: ${!!this.vectorStore}`);
     if(this.vectorStore) {
-      console.log('adding docs to exiting vectorStore')
       await this.vectorStore.addDocuments(splittedDocs);
     } else {
-      console.log('creating new vectorStore')
       this.vectorStore = await MemoryVectorStore.fromDocuments(splittedDocs, this.embeddingModel)
     }
-    console.log(`chain is created${!!this.chain}`)
-      this.chain = RetrievalQAChain.fromLLM(
-        this.model,
-        this.vectorStore.asRetriever(),
-        {
-          prompt: this.promptTemplate,
-        },
-      );
-    console.log('successful crawling')
-  }
-
-  async useTXTfile(filepath: string) {
-    const loader = new TextLoader(filepath);
-    const documents = await loader.load();
-    const splittedDocs = await this.textSplitter.splitDocuments(documents);
-      await this.vectorStore.addDocuments(splittedDocs);
     if(!this.chain) {
       this.chain = RetrievalQAChain.fromLLM(
         this.model,
@@ -91,23 +144,6 @@ export class ChatContextService {
         },
       );
     }
-  }
-
-  async usePdfDoc(filepath: string) {
-    const loader = new PDFLoader(filepath);
-    const documents = await loader.load();
-    const splittedDocs = await this.textSplitter.splitDocuments(documents);
-      await this.vectorStore.addDocuments(splittedDocs);
-    if(!this.chain) {
-      this.chain = RetrievalQAChain.fromLLM(
-        this.model,
-        this.vectorStore.asRetriever(),
-        {
-          prompt: this.promptTemplate,
-        },
-      );
-    }
-    console.log('chain created');
   }
 
   async askAssistant(prompt: string) {
