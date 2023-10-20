@@ -21,7 +21,7 @@ export class ChatContextService {
   chain;
   vectorStore;
   promptTemplate = new PromptTemplate({
-    template: `analize this information about this manufacturing solutions: {context}, and answer questions as if you are product owner: {question}`,
+    template: `analize this english text: {context} and make 10 questions for quiz about this text with answer variants: {question}`,
     inputVariables: ['context', 'question'],
   });
   embeddingModel = new OllamaEmbeddings({
@@ -38,33 +38,34 @@ export class ChatContextService {
   });
 
   async initConfigFile() {
-    await this.useConfigFile();
+    await this.useCommonConfigFile('5s Control');
   }
 
   async useConfigFile() {
-    for (const link in fiveSControlConfig.data.links) {
-     await this.useHTMLPage(link)
+    for (const link of fiveSControlConfig.infoForChatGuru.youTubeLinks) {
+     await this.useYoutubeVideo(link)
     }
-    for(const pdf in fiveSControlConfig.data.pdfPaths) {
-      await this.usePdfDoc(fiveSControlConfig.data.pdfPaths[pdf])
+    for(const pdf of fiveSControlConfig.infoForChatGuru.pdfPaths) {
+      await this.usePdfDoc(pdf)
     }
-    for(const txt in fiveSControlConfig.data.txtPaths) {
-      await this.useTXTfile(fiveSControlConfig.data.txtPaths[txt])
+    for(const txt of fiveSControlConfig.infoForChatGuru.txtPaths) {
+      await this.useTXTfile(txt)
     }
   }
 
   async useCommonConfigFile(projectName: string) {
     const projectConfig = commonConfig.find((proj) => proj.projectName === projectName);
+    this.promptTemplate = new PromptTemplate({
+      template: projectConfig.behaviourTemplate,
+      inputVariables: ['context', 'question'],
+    });
     await this.useMultiLoader(projectConfig.extraInfoForChatPath);
-    for (const site in projectConfig.websitesLinks) {
-      await this.useCustomHTMLPage(projectConfig.websitesLinks[site].link, projectConfig.websitesLinks[site].crawlDepth)
+    for (const link of projectConfig.youtubeVideoLinks) {
+      await this.useYoutubeVideo(link)
     }
-    // for (const index in projectConfig.youtubeVideoLinks) {
-    //   await this.useYoutubeVideo(projectConfig.youtubeVideoLinks[index])
-    // }
-    // for (const index in projectConfig.gitHubRepositories) {
-    //   await this.useGitHubProject(projectConfig.gitHubRepositories[index].link, projectConfig.gitHubRepositories[index].branch)
-    // }
+    for (const index in projectConfig.gitHubRepositories) {
+      await this.useGitHubProject(projectConfig.gitHubRepositories[index].link, projectConfig.gitHubRepositories[index].branch)
+    }
   }
 
   private async useGitHubProject(projectUrl, branchName) {
@@ -89,6 +90,7 @@ export class ChatContextService {
   }
 
   private async useMultiLoader(folderPath: string) {
+    if(!folderPath) return
     const loader = new DirectoryLoader(
       folderPath,
       {
@@ -114,6 +116,7 @@ export class ChatContextService {
       extractor: compiledConvert,
       maxDepth: depth,
     });
+    
     await this.proccessDocuments(loader);
   }
 
