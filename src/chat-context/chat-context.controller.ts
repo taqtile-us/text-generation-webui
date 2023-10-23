@@ -5,6 +5,11 @@ import { ChatContextService } from './chat-context.service';
 export class ChatContextController {
   constructor(private readonly chatContextService: ChatContextService) {}
 
+  @Get('list-of-projects')
+  getListOfProjects() {
+    return this.chatContextService.getListOfProjects();
+  }
+
   @Get('init-config-file')
   initConfigFile() {
     return this.chatContextService.initConfigFile();

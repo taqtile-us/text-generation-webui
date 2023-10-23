@@ -9,7 +9,7 @@ import { OllamaEmbeddings } from 'langchain/embeddings/ollama';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveUrlLoader } from "langchain/document_loaders/web/recursive_url";
 import { compile } from "html-to-text";
-import { readFile, readFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { CSVLoader } from "langchain/document_loaders/fs/csv";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -46,6 +46,11 @@ export class ChatContextService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     console.log('app bootstraped')
     await this.useCommonConfigFile('5s Control');
+  }
+
+  getListOfProjects() {
+    console.log(readdirSync('./src/uploads/ChatGuru'))
+    return readdirSync('./src/uploads/ChatGuru');
   }
 
   async useCommonConfigFile(projectName: string) {
