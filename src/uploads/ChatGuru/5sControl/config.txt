@@ -1,0 +1,20 @@
+        {
+            "projectName": "5s Control",
+            "behaviourTemplate": "analize provided information: {context}, and answer questions: {question}",
+            "extraInfoForChatPath": "./src/uploads/ChatGuru/5sControl/files",
+            "websitesLinks": [
+                {
+                    "link": "https://5controls.com/",
+                    "crawlDepth": 5
+                }
+            ],
+            "youtubeVideoLinks": [
+              "https://www.youtube.com/watch?v=rVRhrZqTNyQ"
+            ],
+            "gitHubRepositories": [
+              
+            ],
+            "figmaProject": [
+              
+            ]
+        }
