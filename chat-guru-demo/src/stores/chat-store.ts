@@ -1,7 +1,7 @@
 import {action, makeAutoObservable, observable} from "mobx"
-import {ChatMessage, DirectoryTree} from "../shared/types";
+import {ChatMessage} from "../shared/types";
 import autoBind from 'auto-bind'
-import {apiAskAssistant, apiInitConfigFile} from "../api/chat-api";
+import {apiAskAssistant, apiGetListOfProjects, apiInitConfigFile} from "../api/chat-api";
 
 class ChatStore {
 
@@ -15,6 +15,19 @@ class ChatStore {
         author: 'llama',
         message: 'Hi! My name is ChatGuru! I am your personal AI assistant! How can I help you?'
     }];
+    @observable listOfProjects: string[] = [];
+    @observable selectedProject: string = '';
+
+    @action getListOfProjects() {
+        apiGetListOfProjects().then(res => {
+            this.listOfProjects = res;
+        })
+    }
+
+    @action setSelectedProject(value: string) {
+        console.log(this.selectedProject)
+        this.selectedProject = value;
+    }
 
     @action addMessage(message: ChatMessage) {
         this.messages = [...this.messages, message]

@@ -3,6 +3,7 @@ import {chatStore} from "../../stores/chat-store";
 import {observer} from "mobx-react-lite";
 import styles from './chat.module.scss'
 import UploadContextModal from "./upload-context-modal/upload-context-modal";
+import ContextTypeSelect from '../context-type-select/context-type-select';
 
 
 const Chat = observer(() => {
@@ -42,6 +43,7 @@ const Chat = observer(() => {
 
     return (
         <div className={styles.chatWrapper}>
+            <ContextTypeSelect/>
             {showContextModal && <UploadContextModal onClose={() => setShowContextModal(false)}/>}
             <div className={styles.messagesWrapper}>
                 {messages.map((message, index) => {
@@ -52,7 +54,6 @@ const Chat = observer(() => {
             </div>
             <div ref={chatInputRef as LegacyRef<HTMLDivElement> | undefined} style={{display: 'flex', columnGap: '12px', width: '50%'}}>
                 <input onKeyPress={e => e.key === 'Enter' && onSendMessageHandler()} onSubmit={onSendMessageHandler} className={styles.chatInput} type={'text'} value={prompt} onChange={e => setPrompt(e.currentTarget.value)}/>
-                <button className={styles.addContextButton} onClick={() => setShowContextModal(true)}>📎</button>
                 <button className={styles.askButton} onClick={onSendMessageHandler}>
                     {'Ask'}
                 </button>
