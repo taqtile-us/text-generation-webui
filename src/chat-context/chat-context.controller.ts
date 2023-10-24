@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, HttpException, Param, Query } from '@nestjs/common';
 import { ChatContextService } from './chat-context.service';
 
 @Controller('test')
@@ -7,16 +7,40 @@ export class ChatContextController {
 
   @Get('list-of-projects')
   getListOfProjects() {
-    return this.chatContextService.getListOfProjects();
+    try {
+      return this.chatContextService.getListOfProjects();
+    } catch (err) {
+      if (err.message) {
+        throw new HttpException(err.message, err.status);
+      }
+      throw new HttpException(err, 500);
+    }
   }
 
-  @Get('init-config-file')
-  initConfigFile() {
-    return this.chatContextService.initConfigFile();
+  @Get('init-config-file:project')
+  initConfigFile(@Param('project') project: string) {
+    try {
+      return this.chatContextService.initConfigFile(project);
+    } catch (err) {
+      if (err.message) {
+        throw new HttpException(err.message, err.status);
+      }
+      throw new HttpException(err, 500);
+    }
   }
 
-  @Get('ask:prompt')
-  askAssistant(@Param('prompt') prompt: string) {
-    return this.chatContextService.askAssistant(prompt);
+  @Get('ask?')
+  askAssistant(@Query() query: { projectName: string; prompt: string }) {
+    try {
+      return this.chatContextService.askAssistant(
+        query.prompt,
+        query.projectName,
+      );
+    } catch (err) {
+      if (err.message) {
+        throw new HttpException(err.message, err.status);
+      }
+      throw new HttpException(err, 500);
+    }
   }
 }
