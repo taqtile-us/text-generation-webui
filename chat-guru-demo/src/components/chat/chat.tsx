@@ -9,9 +9,10 @@ import ContextTypeSelect from '../context-type-select/context-type-select';
 const Chat = observer(() => {
     const {
         messages,
+        isLoading,
         addMessage,
         askAssistant,
-        getListOfFiles
+        initConfigFile
     } = chatStore;
 
     const [prompt, setPrompt] = useState('');
@@ -29,13 +30,6 @@ const Chat = observer(() => {
         setPrompt('')
     }
 
-
-    const addWebsetiPressHandler = () => {
-        // if(!link) return;
-        // apiAddContextLink(link)
-        getListOfFiles()
-    }
-
     useEffect(() => {
         //@ts-ignore
         chatInputRef.current?.scrollIntoView({behavior: 'smooth'})
@@ -43,8 +37,12 @@ const Chat = observer(() => {
 
     return (
         <div className={styles.chatWrapper}>
+            {isLoading &&
+                <div className={styles.loadingWrapper}>
+                    <img style={{width: '10vw', height: '10vh'}} alt={'loading'} src={require('../../assets/loader/loader.gif')}/>
+                </div>
+            }
             <ContextTypeSelect/>
-            {showContextModal && <UploadContextModal onClose={() => setShowContextModal(false)}/>}
             <div className={styles.messagesWrapper}>
                 {messages.map((message, index) => {
                     return <div key={message.message + index} className={message.author === 'llama' ? styles.llamaMessage : styles.userMessage}>
@@ -58,7 +56,7 @@ const Chat = observer(() => {
                     {'Ask'}
                 </button>
             </div>
-            <button style={{width: 'auto'}} className={styles.askButton} onClick={addWebsetiPressHandler}>Init config File</button>
+            <button style={{width: 'auto'}} className={styles.askButton} onClick={initConfigFile}>Init config File</button>
         </div>
     );
 });

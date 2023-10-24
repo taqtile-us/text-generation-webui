@@ -10,22 +10,26 @@ class ChatStore {
         autoBind(this)
     }
 
+    @observable isLoading: boolean = false;
     @observable messages: ChatMessage[] = [{
         id: 0,
         author: 'llama',
         message: 'Hi! My name is ChatGuru! I am your personal AI assistant! How can I help you?'
     }];
-    @observable listOfProjects: string[] = [];
+    @observable listOfProjects: string[] = ['sadasdsa', 'sdasdsad', 'asdasdasdasd'];
     @observable selectedProject: string = '';
 
     @action getListOfProjects() {
-        apiGetListOfProjects().then(res => {
-            this.listOfProjects = res;
-        })
+        this.isLoading = true
+        apiGetListOfProjects()
+            .then(res => {
+                this.listOfProjects = res;
+                this.selectedProject = res[0];
+            })
+            .finally(() => this.isLoading = false);
     }
 
     @action setSelectedProject(value: string) {
-        console.log(this.selectedProject)
         this.selectedProject = value;
     }
 
@@ -33,20 +37,28 @@ class ChatStore {
         this.messages = [...this.messages, message]
     }
 
-    @action async askAssistant(prompt: string){
-       await apiAskAssistant(prompt).then((res) => {
-            console.log(res)
-            this.messages.push({
-                id: Date.now() as number,
-                author: 'llama',
-                message: JSON.stringify(res.text)
+    @action
+    async askAssistant(prompt: string) {
+        this.isLoading = true
+        await apiAskAssistant(prompt, this.selectedProject)
+            .then((res) => {
+                console.log(res)
+                this.messages.push({
+                    id: Date.now() as number,
+                    author: 'llama',
+                    message: JSON.stringify(res.text)
+                })
             })
-        });
+            .finally(() => this.isLoading = false);
     }
 
-    @action async getListOfFiles() {
-        apiInitConfigFile()
-            .then(res => {});
+    @action
+    async initConfigFile() {
+        this.isLoading = true
+        apiInitConfigFile(this.selectedProject)
+            .then(res => {
+            })
+            .finally(() => this.isLoading = false)
     }
 }
 

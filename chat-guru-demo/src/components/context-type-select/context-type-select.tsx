@@ -5,14 +5,19 @@ import {observer} from "mobx-react-lite";
 
 const ContextTypeSelect = observer(() => {
 
-    const {listOfProjects, setSelectedProject} = chatStore;
+    const {listOfProjects, setSelectedProject, selectedProject} = chatStore;
+    const onSelect= (projectNane: string) => {
+        setSelectedProject(projectNane)
+        console.log(selectedProject)
+    }
 
     return (
         <div className={styles.componentWrapper}>
-            <select onChange={e => setSelectedProject(e.currentTarget.value)}>
+            <h3>Select context type</h3>
+            <select style={{width: '100%'}} onChange={e => onSelect(e.currentTarget.value)}>
                 {listOfProjects.map((el) => {
                     return (
-                        <option key={el} value={el}>{el}</option>
+                            <option key={el} value={el}>{el}</option>
                     )
                 })}
             </select>
