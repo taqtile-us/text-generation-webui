@@ -146,24 +146,7 @@ export class ChatContextService implements OnApplicationBootstrap {
       });
       this.proccessDocuments(loader, projectName);
     }
-
-    // const compiledConvert = compile({ wordwrap: 130 });
-    // const loader = new RecursiveUrlLoader(link, {
-    //   extractor: compiledConvert,
-    //   maxDepth: 2,
-    // });
-    // this.proccessDocuments(loader, '5sControl');
   }
-
-  // private async useCustomHTMLPage(link: string, depth: number) {
-  //   const compiledConvert = compile({ wordwrap: 130 })
-  //   const loader = new RecursiveUrlLoader(link, {
-  //     extractor: compiledConvert,
-  //     maxDepth: depth,
-  //   });
-
-  //   await this.proccessDocuments(loader);
-  // }
 
   private async proccessDocuments(
     loader:
