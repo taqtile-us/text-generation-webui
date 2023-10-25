@@ -9,7 +9,6 @@
                 }
             ],
             "youtubeVideoLinks": [
-              "https://www.youtube.com/watch?v=rVRhrZqTNyQ"
             ],
             "gitHubRepositories": [
               

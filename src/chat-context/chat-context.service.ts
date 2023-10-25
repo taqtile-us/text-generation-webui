@@ -15,6 +15,8 @@ import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { YoutubeLoader } from 'langchain/document_loaders/web/youtube';
 import { GithubRepoLoader } from 'langchain/document_loaders/web/github';
 import { FigmaFileLoader } from 'langchain/document_loaders/web/figma';
+import Sitemapper from 'sitemapper';
+import { CheerioWebBaseLoader } from 'langchain/document_loaders/web/cheerio';
 
 @Injectable()
 export class ChatContextService implements OnApplicationBootstrap {
@@ -61,10 +63,9 @@ export class ChatContextService implements OnApplicationBootstrap {
       template: projectConfig.behaviourTemplate,
       inputVariables: ['context', 'question'],
     });
-
     await this.useMultiLoader(projectConfig.extraInfoForChatPath, projectName);
-    for (const link of projectConfig.youtubeVideoLinks) {
-      await this.useYoutubeVideo(link, projectName);
+    for (const link of projectConfig.websitesLinks) {
+      await this.useHTMLPage(link.link, projectName);
     }
     for (const link of projectConfig.youtubeVideoLinks) {
       await this.useYoutubeVideo(link, projectName);
@@ -121,14 +122,38 @@ export class ChatContextService implements OnApplicationBootstrap {
     await this.proccessDocuments(loader, projectName);
   }
 
-  // private async useHTMLPage(link: string) {
-  //   const compiledConvert = compile({ wordwrap: 130 })
-  //   const loader = new RecursiveUrlLoader(link, {
-  //     extractor: compiledConvert,
-  //     maxDepth: 5,
-  //   });
-  //   this.proccessDocuments(loader);
-  // }
+  private async useHTMLPage(link: string, projectName: string) {
+    const sitemapper = new Sitemapper({
+      url: link + 'sitemap.xml',
+      rejectUnauthorized: true,
+      timeout: 15000,
+      requestHeaders: {
+        'User-Agent':
+          'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:81.0) Gecko/20100101 Firefox/81.0',
+      },
+    });
+    const sitemapLinks = (await sitemapper
+      .fetch()
+      .then((data) => {
+        return data.sites;
+      })
+      .catch((error) => {
+        console.log(error);
+      })) as string[];
+    for (const url of sitemapLinks) {
+      const loader = new CheerioWebBaseLoader(url, {
+        selector: 'div',
+      });
+      this.proccessDocuments(loader, projectName);
+    }
+
+    // const compiledConvert = compile({ wordwrap: 130 });
+    // const loader = new RecursiveUrlLoader(link, {
+    //   extractor: compiledConvert,
+    //   maxDepth: 2,
+    // });
+    // this.proccessDocuments(loader, '5sControl');
+  }
 
   // private async useCustomHTMLPage(link: string, depth: number) {
   //   const compiledConvert = compile({ wordwrap: 130 })
@@ -150,6 +175,7 @@ export class ChatContextService implements OnApplicationBootstrap {
       | GithubRepoLoader
       | CSVLoader
       | DocxLoader
+      | CheerioWebBaseLoader
       | FigmaFileLoader,
     projectName: string,
   ) {
