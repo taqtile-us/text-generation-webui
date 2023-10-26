@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const apiInitConfigFile = async (project: string) => {
    try {
-      const res = await axios.get(`http://192.168.0.111:3002/test/init-config-file${project}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}test/init-config-file${project}`);
       return res.data;
    } catch (err) {
       return console.log(err);
@@ -11,7 +11,7 @@ export const apiInitConfigFile = async (project: string) => {
 
 export const apiAskAssistant = async (prompt: string, projectName: string) => {
    try {
-      const res = await axios.get(`http://192.168.0.111:3002/test/ask?prompt=${prompt}&projectName=${projectName}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}test/ask?prompt=${prompt}&projectName=${projectName}`);
       return res.data;
    } catch (err) {
       return console.log(err);
@@ -20,7 +20,7 @@ export const apiAskAssistant = async (prompt: string, projectName: string) => {
 
 export const apiGetListOfProjects = async () => {
    try {
-      const res = await axios.get(`http://192.168.0.111:3002/test/list-of-projects`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}test/list-of-projects`);
       return res.data;
    } catch (err) {
       return console.log(err);

@@ -16,6 +16,7 @@
     "axios": "^1.5.1",
     "chromadb": "^1.5.11",
     "dotenv": "^16.3.1",
+    "env-cmd": "^10.1.0",
     "langchain": "^0.0.157",
     "mobx-react-lite": "^4.0.5",
     "pdf-parse": "^1.1.1",
@@ -28,6 +29,7 @@
   "proxy": "http://localhost:5000",
   "scripts": {
     "start": "react-scripts start",
+    "start:local": "env-cmd -f .env.local react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
